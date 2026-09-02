@@ -38,16 +38,18 @@ if ingredients_list:
         st.write('The search value for ', fruit_chosen, ' is ', search_on, '.')
       
         st.subheader(fruit_chosen + ' Nutrition Information')
-        smoothiefroot_response = requests.get('https://my.smoothiefroot.com/api/fruit/'+search_on)
-        sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+        try:
+            smoothiefroot_response = requests.get('https://my.smoothiefroot.com/api/fruit/'+search_on)
+            sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+        except:
+            st.write(fruit_chosen + 'can not be found.')
   
-    my_insert_stmt = """
-        insert into smoothies.public.orders(ingredients, name_on_order)
-        values('"""+ingredients_string+"""','"""+name_on_order+"""')
-    """
-
     time_to_insert = st.button('Submit Order')
 
     if time_to_insert:
+        my_insert_stmt = """
+          insert into smoothies.public.orders(ingredients, name_on_order)
+          values('"""+ingredients_string+"""','"""+name_on_order+"""')
+        """
         session.sql(my_insert_stmt).collect()
         st.success(f'Your Smoothie is ordered, {name_on_order}!', icon='✅')
